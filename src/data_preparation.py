@@ -1,14 +1,11 @@
 import json
-import os
 
 import numpy as np
 import pandas as pd
-import torch
-from skimage import io
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.utils.class_weight import compute_class_weight, compute_sample_weight
-from torch.utils.data import Dataset
+from sklearn.utils.class_weight import compute_class_weight
+
 from src.dataset import CasavaDataset
 
 
@@ -55,4 +52,11 @@ def prepare_datasets(
     val_dataset = CasavaDataset(val_df, images_dir, encoder, test_transform)
     test_dataset = CasavaDataset(test_df, images_dir, encoder, test_transform)
 
-    return train_dataset, val_dataset, test_dataset, class_weights, classes_dict,encoder
+    return (
+        train_dataset,
+        val_dataset,
+        test_dataset,
+        class_weights,
+        classes_dict,
+        encoder,
+    )

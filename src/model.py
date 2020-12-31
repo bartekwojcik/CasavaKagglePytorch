@@ -10,6 +10,8 @@ import pytorch_lightning as pl
 from pytorch_lightning.metrics.functional import f1, accuracy
 from torchsummary import summary
 from src.dataset import CasavaDataset
+import multiprocessing
+
 
 
 class CasvaModel(pl.LightningModule):
@@ -26,6 +28,7 @@ class CasvaModel(pl.LightningModule):
     ):
 
         super().__init__()
+        #self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.batch_size = batch_size
         self.class_weights = torch.from_numpy(class_weights)
         self.train_dataset = train_dataset
@@ -34,18 +37,19 @@ class CasvaModel(pl.LightningModule):
         self.learning_rate = learning_rate
         self.num_classes = num_classes
         self.img_dims = image_dims
+        self.data_loader_workers = multiprocessing.cpu_count()
 
         self._prepare_model(self.num_classes, freeze_base_network=True)
 
-        self.criterion = nn.BCEWithLogitsLoss(pos_weight=self.class_weights)
+        self.criterion = nn.BCEWithLogitsLoss(pos_weight=self.class_weights).to(self.device)
 
     def _prepare_model(self, num_classes, freeze_base_network):
 
-        resnet = models.resnet18(pretrained=True)
+        resnet = models.resnet101(pretrained=True)
 
         if freeze_base_network:
             for param in resnet.parameters():
-                param.requires_grad = False  # todo make it change for fine tuning
+                param.requires_grad = False
 
         num_ftrs = resnet.fc.in_features
         resnet.fc = nn.Sequential(
@@ -54,7 +58,12 @@ class CasvaModel(pl.LightningModule):
             nn.Linear(in_features=128, out_features=num_classes),
         )
 
+        resnet =resnet.to(self.device)
+        if torch.cuda.is_available():
+            resnet.cuda()
+
         self.model = resnet
+        print(self.img_dims)
         summary(resnet, self.img_dims)
 
     def forward(self, x):
@@ -63,8 +72,8 @@ class CasvaModel(pl.LightningModule):
         return result
 
     def training_step(self, batch, batch_idx):
-        x = batch["image"]
-        y = batch["label"]
+        x = batch["image"].to(self.device)
+        y = batch["label"].to(self.device)
 
         output = self(x)
         loss = self.criterion(output, y.float())
@@ -72,8 +81,8 @@ class CasvaModel(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x = batch["image"]
-        y = batch["label"]
+        x = batch["image"].to(self.device)
+        y = batch["label"].to(self.device)
         output = self(x)
         loss = self.criterion(output, y.float())
 
@@ -87,17 +96,16 @@ class CasvaModel(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
 
-
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
         return [optimizer], [scheduler]
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size,num_workers=self.data_loader_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size,num_workers=self.data_loader_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size,num_workers=self.data_loader_workers)

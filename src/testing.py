@@ -18,7 +18,7 @@ def get_test_model_predictions(model, test_dataset, batch_size):
         true_labels = sample_batched["label"].numpy().astype(np.uint8)
 
         outputs = model(images)
-        results = torch.sigmoid(outputs).detach().numpy()
+        results = torch.sigmoid(outputs).cpu().detach().numpy()
         predictions.append(results)
         targets.append(true_labels)
 

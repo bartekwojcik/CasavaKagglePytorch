@@ -62,6 +62,7 @@ def start_training(
         val_dataset,
         test_dataset,
         class_weights,
+        training_samples_weights,
         classes_dict,
         encoder,
     ) = prepare_datasets(
@@ -79,8 +80,9 @@ def start_training(
     model = CasvaModel(
         num_classes=len(classes_dict),
         class_weights=class_weights,
+        training_samples_weights=training_samples_weights,
         image_dims=IMG_SIZE_CHANNEL,
-        learning_rate=learning_rate,  # TODO pass scheduler or,
+        learning_rate=learning_rate,
         train_dataset=train_dataset,
         val_dataset=val_dataset,
         test_dataset=test_dataset,

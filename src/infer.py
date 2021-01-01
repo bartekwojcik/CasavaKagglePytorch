@@ -41,6 +41,7 @@ def infer_casava(model,img_dir, test_transforms,decoder):
     df = pd.DataFrame(data)
 
     df.to_csv('submission.csv',index=False,)
+    print(df)
 
 
 

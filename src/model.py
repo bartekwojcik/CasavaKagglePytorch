@@ -3,7 +3,7 @@ import os
 import torch
 from torch import nn
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, WeightedRandomSampler
 from torchvision.datasets import MNIST
 from torchvision import transforms, models
 import pytorch_lightning as pl
@@ -21,6 +21,7 @@ class CasvaModel(pl.LightningModule):
         val_dataset,
         test_dataset,
         class_weights,
+        training_samples_weights,
         num_classes: int = 5,
         image_dims=(3, 28, 28),
         learning_rate=2e-4,
@@ -29,6 +30,7 @@ class CasvaModel(pl.LightningModule):
 
         super().__init__()
         #self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.training_samples_weights = training_samples_weights
         self.batch_size = batch_size
         self.class_weights = torch.from_numpy(class_weights)
         self.train_dataset = train_dataset
@@ -102,7 +104,13 @@ class CasvaModel(pl.LightningModule):
         return [optimizer], [scheduler]
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size,num_workers=self.data_loader_workers)
+        weights = self.training_samples_weights
+        sampler = WeightedRandomSampler(weights, len(weights))
+        return DataLoader(dataset=self.train_dataset,
+                          batch_size=self.batch_size,
+                          num_workers=self.data_loader_workers,
+                          sampler= sampler
+                          )
 
     def val_dataloader(self):
         return DataLoader(self.val_dataset, batch_size=self.batch_size,num_workers=self.data_loader_workers)

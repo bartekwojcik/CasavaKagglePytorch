@@ -42,7 +42,7 @@ def prepare_datasets(
 
     # df['sample_weight'] = samples_weights
 
-    train_df, test_df = split_dataset(df, test_size=0.15)
+    train_df, test_df = split_dataset(df, test_size=0.1)
     test_df, val_df = split_dataset(test_df, test_size=0.5)
 
     encoder = OneHotEncoder()

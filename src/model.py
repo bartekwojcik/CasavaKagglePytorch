@@ -47,7 +47,7 @@ class CasvaModel(pl.LightningModule):
 
     def _prepare_model(self, num_classes, freeze_base_network):
 
-        resnet = models.resnet101(pretrained=True)
+        resnet = models.resnext101_32x8d(pretrained=True)
 
         if freeze_base_network:
             for param in resnet.parameters():

@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     TRAINING_EPOCHS= 0
     FINE_TUNING_EPOCHS= 1
-    IMG_SIZE = 28
+    IMG_SIZE = 512
     LEARNING_RATE=2e-4
     VIZ_DATA = False
     BATCH_SIZE=512

@@ -38,13 +38,21 @@ def start_training(
 
     train_transform = A.Compose(
         [
+
             A.Resize(img_size, img_size),
             A.ShiftScaleRotate(
                 shift_limit=0.05, scale_limit=0.05, rotate_limit=360, p=0.5
             ),
-            A.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=0.5),
+            A.VerticalFlip(),
+            A.HorizontalFlip(),
+            A.RandomGamma(),
+            A.CLAHE(),
+            A.GaussNoise(),
+            A.Cutout(),
+            A.Blur(),
+            A.RGBShift(r_shift_limit=50, g_shift_limit=50, b_shift_limit=50, p=0.5),
             A.RandomBrightnessContrast(p=0.5),
-            A.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            A.Normalize(),#((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ToTensorV2(),
         ]
     )
@@ -52,7 +60,7 @@ def start_training(
     test_transform = A.Compose(
         [
             A.Resize(img_size, img_size),
-            A.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            A.Normalize(),#((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ToTensorV2(),
         ]
     )

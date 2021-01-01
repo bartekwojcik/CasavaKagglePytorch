@@ -39,6 +39,7 @@ class CasavaDataset(Dataset):
 
         if self.transform:
             # image = self.transform(image)
+            # old_image = image
             image = self.transform(image=image)["image"]
 
         label = row["label"]

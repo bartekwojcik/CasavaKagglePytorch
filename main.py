@@ -19,10 +19,10 @@ if __name__ == '__main__':
 
     TRAINING_EPOCHS= 0
     FINE_TUNING_EPOCHS= 1
-    IMG_SIZE = 512
+    IMG_SIZE = 70 #int(0.1 * self.input_height) must be odd
     LEARNING_RATE=2e-4
     VIZ_DATA = False
-    BATCH_SIZE=512
+    BATCH_SIZE=8
     USE_GPU = False
 
     start_training(csv_file=CSV_FILE,

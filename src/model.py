@@ -11,6 +11,7 @@ from pytorch_lightning.metrics.functional import f1, accuracy
 from torchsummary import summary
 from src.dataset import CasavaDataset
 import multiprocessing
+import numpy as np
 
 
 
@@ -101,7 +102,8 @@ class CasvaModel(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-        return [optimizer], [scheduler]
+        scheduler2 = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=0, verbose=True)
+        return [optimizer], [scheduler2]
 
     def train_dataloader(self):
         weights = self.training_samples_weights

@@ -50,7 +50,7 @@ def start_training(
             A.GaussNoise(),
             A.Cutout(),
             A.Blur(),
-            A.RGBShift(r_shift_limit=50, g_shift_limit=50, b_shift_limit=50, p=0.5),
+            A.RGBShift(r_shift_limit=20, g_shift_limit=20, b_shift_limit=20, p=0.5),
             A.RandomBrightnessContrast(p=0.5),
             A.Normalize(),#((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ToTensorV2(),
